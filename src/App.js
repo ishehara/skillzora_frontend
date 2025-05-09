@@ -12,6 +12,8 @@ import UpdateProgress from "./Components/Pages/ProgressChecker/UpdateProgress";
 import PostList from "./Components/Pages/Post/PostList";
 import CommentSection from "./Components/Pages/Comment/CommentSection";
 import Profile from "./Components/Pages/Profile";
+import UpdatePost from "./Components/Pages/Post/UpdatePost";
+import AddPost from "./Components/Pages/Post/AddPost";
 
 import "./App.css";
 
@@ -39,6 +41,8 @@ function App() {
             <Route path="/PostList" element={<PostList />} />
             <Route path="/CommentSection" element={<CommentSection />} />
             <Route path="/Profile" element={<Profile />} />
+            <Route path="/update-post/:postId" element={<UpdatePost />} />
+             <Route path="/add-post" element={<AddPost />} />
           </Routes>
         </Box>
 
