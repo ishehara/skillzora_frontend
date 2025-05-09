@@ -9,6 +9,7 @@ import AddProgress from "./Components/Pages/ProgressChecker/AddProgress";
 import UpdateProgress from "./Components/Pages/ProgressChecker/UpdateProgress";
 import PostList from "./Components/Pages/Post/PostList";
 import CommentSection from "./Components/Pages/Comment/CommentSection";
+import Profile from "./Components/Pages/Profile";
 import './App.css';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/UpdateProgress" element={<UpdateProgress />} />
         <Route path="/PostList" element={<PostList />} />
         <Route path="/CommentSection" element={<CommentSection />} />
+        <Route path="/Profile" element={<Profile />} />
       </Routes>
       <Footer />
     </Router>
