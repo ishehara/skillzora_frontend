@@ -26,7 +26,7 @@ function App() {
         <Route path="/UpdateProgress" element={<UpdateProgress />} />
         <Route path="/PostList" element={<PostList />} />
         <Route path="/CommentSection" element={<CommentSection />} />
-      </Routes>
+       </Routes>
       <Footer />
     </Router>
   );
