@@ -3,36 +3,66 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Container, Typography, Box, List, ListItem, ListItemText, 
-  IconButton, Paper, Divider, TextField, Button 
+  IconButton, Paper, Divider, Card, CardContent, Grid,
+  Button, CircularProgress
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import BookmarkViewEditDialog from './BookmarkViewEditDialog';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const BookmarksList = () => {
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState(null);
-  const [noteText, setNoteText] = useState('');
+  const [selectedBookmark, setSelectedBookmark] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [posts, setPosts] = useState({});
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  useEffect(() => {
-    const fetchBookmarks = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get('http://localhost:8081/api/bookmarks', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setBookmarks(response.data);
-      } catch (error) {
-        console.error('Error fetching bookmarks:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchBookmarks = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://localhost:8081/api/bookmarks', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setBookmarks(response.data);
+      
+      // Fetch post details for each bookmark
+      await fetchPostDetails(response.data);
+    } catch (error) {
+      console.error('Error fetching bookmarks:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const fetchPostDetails = async (bookmarksList) => {
+    try {
+      const postsData = {};
+      
+      for (const bookmark of bookmarksList) {
+        try {
+          const response = await axios.get(`http://localhost:8081/api/posts/${bookmark.postId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          postsData[bookmark.postId] = response.data;
+        } catch (err) {
+          console.error(`Error fetching post for bookmark ${bookmark.id}:`, err);
+          postsData[bookmark.postId] = { title: 'Post not available', description: '' };
+        }
+      }
+      
+      setPosts(postsData);
+    } catch (error) {
+      console.error('Error fetching post details:', error);
+    }
+  };
+
+  useEffect(() => {
     if (token) {
       fetchBookmarks();
     } else {
@@ -51,122 +81,174 @@ const BookmarksList = () => {
     }
   };
 
-  const handleEditBookmark = (bookmark) => {
-    setEditingId(bookmark.id);
-    setNoteText(bookmark.note || '');
+  const handleViewBookmark = (bookmark) => {
+    setSelectedBookmark(bookmark);
+    setIsEditing(false);
+    setDialogOpen(true);
   };
 
-  const handleSaveNote = async () => {
-    try {
-      await axios.put(`http://localhost:8081/api/bookmarks/${editingId}`, 
-        { note: noteText },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      // Update local state
-      setBookmarks(bookmarks.map(bookmark => 
-        bookmark.id === editingId ? { ...bookmark, note: noteText } : bookmark
-      ));
-      
-      setEditingId(null);
-    } catch (error) {
-      console.error('Error updating note:', error);
-    }
+  const handleEditBookmark = (bookmark) => {
+    setSelectedBookmark(bookmark);
+    setIsEditing(true);
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setSelectedBookmark(null);
+  };
+
+  const handleUpdateBookmark = (updatedBookmark) => {
+    setBookmarks(bookmarks.map(bookmark => 
+      bookmark.id === updatedBookmark.id ? updatedBookmark : bookmark
+    ));
   };
 
   const handleViewPost = (postId) => {
     localStorage.setItem('selectedPostId', postId);
-    navigate('/PostList');
+    navigate('/posts/' + postId);
   };
 
   if (loading) {
     return (
-      <Container sx={{ py: 4 }}>
-        <Typography>Loading bookmarks...</Typography>
+      <Container sx={{ py: 4, display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress />
       </Container>
     );
   }
 
-return (
+  return (
     <Container sx={{ py: 4 }}>
       <Typography variant="h5" gutterBottom>
         Your Bookmarked Posts
       </Typography>
       
       {bookmarks.length === 0 ? (
-        <Typography>You haven't bookmarked any posts yet.</Typography>
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="body1" paragraph>
+            You haven't bookmarked any posts yet.
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={() => navigate('/PostList')}
+            sx={{ 
+              backgroundColor: '#FFB300', 
+              '&:hover': { backgroundColor: '#FFA000' } 
+            }}
+          >
+            Explore Posts
+          </Button>
+        </Paper>
       ) : (
-        <List>
-          {bookmarks.map(bookmark => (
-            <Paper key={bookmark.id} sx={{ mb: 2, p: 2 }}>
-              <ListItem
-                secondaryAction={
-                  <Box>
-                    <IconButton edge="end" onClick={() => handleEditBookmark(bookmark)}>
+        <Grid container spacing={3}>
+          {bookmarks.map(bookmark => {
+            const post = posts[bookmark.postId] || {};
+            
+            return (
+              <Grid item xs={12} sm={6} md={4} key={bookmark.id}>
+                <Card 
+                  elevation={2} 
+                  sx={{ 
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: 4
+                    }
+                  }}
+                >
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" gutterBottom>
+                      {post.title || 'Post Title'}
+                    </Typography>
+                    
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      {post.description
+                        ? (post.description.length > 100
+                            ? post.description.substring(0, 100) + '...'
+                            : post.description)
+                        : 'No description available'}
+                    </Typography>
+                    
+                    {bookmark.note && (
+                      <Box sx={{ mt: 2, p: 1, bgcolor: '#FFF8E1', borderRadius: 1 }}>
+                        <Typography variant="subtitle2" color="text.secondary">
+                          Your Note:
+                        </Typography>
+                        <Typography variant="body2">
+                          {bookmark.note.length > 80
+                            ? bookmark.note.substring(0, 80) + '...'
+                            : bookmark.note}
+                        </Typography>
+                      </Box>
+                    )}
+                    
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
+                      Bookmarked on {new Date(bookmark.createdAt).toLocaleDateString()}
+                    </Typography>
+                  </CardContent>
+                  
+                  <Divider />
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 1 }}>
+                    <IconButton 
+                      onClick={() => handleViewBookmark(bookmark)}
+                      color="info"
+                      size="small"
+                      title="View note"
+                    >
+                      <VisibilityIcon />
+                    </IconButton>
+                    
+                    <IconButton 
+                      onClick={() => handleEditBookmark(bookmark)}
+                      color="primary"
+                      size="small"
+                      title="Edit note"
+                    >
                       <EditIcon />
                     </IconButton>
-                    <IconButton edge="end" onClick={() => handleDeleteBookmark(bookmark.id)}>
+                    
+                    <IconButton 
+                      onClick={() => handleDeleteBookmark(bookmark.id)}
+                      color="error"
+                      size="small"
+                      title="Remove bookmark"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </Box>
-                }
-              >
-                <ListItemText 
-                  primary={
-                    <Typography 
-                      variant="subtitle1" 
-                      sx={{ cursor: 'pointer', fontWeight: 'medium' }}
-                      onClick={() => handleViewPost(bookmark.postId)}
-                    >
-                      Post ID: {bookmark.postId}
-                    </Typography>
-                  }
-                  secondary={
-                    <Typography variant="body2" color="text.secondary">
-                      Bookmarked on {new Date(bookmark.createdAt).toLocaleDateString()}
-                    </Typography>
-                  }
-                />
-              </ListItem>
-              
-              {editingId === bookmark.id ? (
-                <Box sx={{ mt: 2, px: 2 }}>
-                  <TextField
+                  
+                  <Button
+                    variant="contained"
                     fullWidth
-                    multiline
-                    rows={3}
-                    label="Your Notes"
-                    value={noteText}
-                    onChange={(e) => setNoteText(e.target.value)}
-                    sx={{ mb: 1 }}
-                  />
-                  <Button 
-                    variant="contained" 
-                    size="small" 
-                    onClick={handleSaveNote}
-                    sx={{ mr: 1 }}
+                    onClick={() => handleViewPost(bookmark.postId)}
+                    sx={{ 
+                      borderTopLeftRadius: 0,
+                      borderTopRightRadius: 0,
+                      backgroundColor: '#FFB300',
+                      '&:hover': { backgroundColor: '#FFA000' }
+                    }}
                   >
-                    Save
+                    View Post
                   </Button>
-                  <Button 
-                    variant="outlined" 
-                    size="small" 
-                    onClick={() => setEditingId(null)}
-                  >
-                    Cancel
-                  </Button>
-                </Box>
-              ) : bookmark.note ? (
-                <Box sx={{ mt: 1, px: 2 }}>
-                  <Typography variant="subtitle2">Your Notes:</Typography>
-                  <Typography variant="body2">{bookmark.note}</Typography>
-                </Box>
-              ) : null}
-              
-              <Divider sx={{ mt: 2 }} />
-            </Paper>
-          ))}
-        </List>
+                </Card>
+              </Grid>
+            );
+          })}
+        </Grid>
+      )}
+      
+      {selectedBookmark && (
+        <BookmarkViewEditDialog
+          open={dialogOpen}
+          onClose={handleDialogClose}
+          bookmark={selectedBookmark}
+          onUpdate={handleUpdateBookmark}
+          isEditing={isEditing}
+        />
       )}
     </Container>
   );
