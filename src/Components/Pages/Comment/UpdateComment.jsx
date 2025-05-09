@@ -1,21 +1,23 @@
+// src/Components/Pages/Comment/UpdateComment.jsx
+
 import React, { useState } from "react";
-import { TextField, IconButton, Typography } from "@mui/material";
+import { TextField, Button, Box } from "@mui/material";
 import { updateComment } from "./CommentService";
 
-const UpdateComment = ({ comment, token, onUpdateDone }) => {
+const UpdateComment = ({ comment, onUpdateDone }) => {
   const [editingText, setEditingText] = useState(comment.commentText);
 
   const handleUpdate = async () => {
     try {
-      await updateComment(comment.id || comment._id, { commentText: editingText }, token);
+      await updateComment(comment.id || comment._id, { commentText: editingText });
       onUpdateDone();
     } catch (error) {
-      console.error("❌ Failed to update comment", error);
+      console.error("Failed to update comment", error);
     }
   };
 
   return (
-    <>
+    <Box>
       <TextField
         fullWidth
         multiline
@@ -23,10 +25,13 @@ const UpdateComment = ({ comment, token, onUpdateDone }) => {
         onChange={(e) => setEditingText(e.target.value)}
         sx={{ mb: 1 }}
       />
-      <IconButton onClick={handleUpdate}>
-        <Typography fontSize={14}>Save</Typography>
-      </IconButton>
-    </>
+      <Button variant="contained" size="small" onClick={handleUpdate}>
+        Save
+      </Button>
+      <Button variant="text" size="small" onClick={onUpdateDone} sx={{ ml: 1 }}>
+        Cancel
+      </Button>
+    </Box>
   );
 };
 

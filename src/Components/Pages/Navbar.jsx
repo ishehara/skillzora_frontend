@@ -1,27 +1,36 @@
+// src/Components/Pages/Navbar.jsx
+
 import React from "react";
-import { AppBar, Toolbar, Typography, Button } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem('token');
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    navigate('/login');
+  };
 
   return (
     <AppBar position="static" sx={{ backgroundColor: "#000" }}>
       <Toolbar>
-        <img
-          src="logo.png"
-          alt="SkillZora Logo"
-          style={{ height: 40, marginRight: 10 }}
-        />
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold', cursor: 'pointer' }} onClick={() => navigate("/")}>
           SkillZora
         </Typography>
         <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
-        <Button color="inherit" onClick={() => navigate("/ProgressChecker")}>Explore Recipes</Button>
-        <Button color="inherit" onClick={() => navigate("/PostList")}>Post</Button>
-        <Button color="inherit" onClick={() => navigate("/CommentSection")}>Comments</Button>
-        <Button color="inherit" onClick={() => navigate("/login")}>Login/Register</Button>
-        <Button color="inherit" onClick={() => navigate("/Profile")}>Profile</Button>
+        <Button color="inherit" onClick={() => navigate("/PostList")}>Recipes</Button>
+        
+        {isLoggedIn ? (
+          <>
+            <Button color="inherit" onClick={() => navigate("/Profile")}>Profile</Button>
+            <Button color="inherit" onClick={handleLogout}>Logout</Button>
+          </>
+        ) : (
+          <Button color="inherit" onClick={() => navigate("/login")}>Login</Button>
+        )}
       </Toolbar>
     </AppBar>
   );

@@ -1,14 +1,31 @@
+// src/Components/Pages/Comment/CommentService.jsx
+
 import axios from "axios";
 
 const API_BASE = "http://localhost:8081/api/comments";
-const authHeaders = () => ({
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-});
 
-export const addComment = (data) => axios.post(API_BASE, data, authHeaders());
-export const getCommentsByPost = (postId) => axios.get(`${API_BASE}/post/${postId}`, authHeaders());
-export const deleteComment = (id) => axios.delete(`${API_BASE}/${id}`, authHeaders());
-export const updateComment = (id, data) => axios.put(`${API_BASE}/${id}`, data, authHeaders());
+// Helper function for authorization headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+};
 
+export const addComment = (data) => {
+  return axios.post(API_BASE, data, getAuthHeaders());
+};
+
+export const getCommentsByPost = (postId) => {
+  return axios.get(`${API_BASE}/post/${postId}`, getAuthHeaders());
+};
+
+export const deleteComment = (id) => {
+  return axios.delete(`${API_BASE}/${id}`, getAuthHeaders());
+};
+
+export const updateComment = (id, data) => {
+  return axios.put(`${API_BASE}/${id}`, data, getAuthHeaders());
+};

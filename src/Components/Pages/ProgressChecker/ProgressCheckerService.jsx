@@ -1,30 +1,39 @@
-// src/services/ProgressCheckerService.js
+// src/Components/Pages/ProgressChecker/ProgressCheckerService.jsx
+
 import axios from "axios";
 
 const API_BASE = "http://localhost:8081/api/cooking-progress";
 
-const authHeaders = () => ({
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-});
-
-export const addProgress = (data) =>
-  axios.post(API_BASE, data, authHeaders());
-
-export const getProgressByUser = (userId) =>
-  axios.get(`${API_BASE}/user/${userId}`, authHeaders());
-
-export const updateProgress = (id, data) =>
-  axios.put(`${API_BASE}/${id}`, data, authHeaders());
-
-export const deleteProgress = (id) =>
-  axios.delete(`${API_BASE}/${id}`, authHeaders());
-
-
-export const getProgressByPost = (postId) =>
-  axios.get(`http://localhost:8081/api/cooking-progress/post/${postId}`, {
+// Helper function for authorization headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`
+      Authorization: `Bearer ${token}`
     }
-  });
+  };
+};
+
+export const addProgress = (data) => {
+  return axios.post(API_BASE, data, getAuthHeaders());
+};
+
+export const getProgressByUser = (userId) => {
+  return axios.get(`${API_BASE}/user/${userId}`, getAuthHeaders());
+};
+
+export const getProgressByPost = (postId) => {
+  return axios.get(`${API_BASE}/post/${postId}`, getAuthHeaders());
+};
+
+export const updateProgress = (id, data) => {
+  return axios.put(`${API_BASE}/${id}`, data, getAuthHeaders());
+};
+
+export const deleteProgress = (id) => {
+  return axios.delete(`${API_BASE}/${id}`, getAuthHeaders());
+};
+
+export const getAllProgress = () => {
+  return axios.get(API_BASE, getAuthHeaders());
+};
