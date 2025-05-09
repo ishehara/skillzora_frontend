@@ -92,6 +92,15 @@ const PostDisplay = () => {
                     ? post.description.substring(0, 100) + "..."
                     : post.description}
                 </Typography>
+                {post.hashtags && post.hashtags.length > 0 && (
+    <Box sx={{ mt: 1 }}>
+      {post.hashtags.map((hashtag, index) => (
+        <Typography key={index} variant="body2" sx={{ color: "#009688", display: "inline", mr: 1 }}>
+          #{hashtag}
+        </Typography>
+      ))}
+    </Box>
+  )}
               </CardContent>
 
               <Stack direction="column" spacing={1} sx={{ p: 2 }}>
@@ -109,12 +118,14 @@ const PostDisplay = () => {
                 >
                   View Comments
                 </Button>
-                <IconButton color="info" onClick={() => handleUpdate(post.id)}>
-                  <EditIcon />
-                </IconButton>
-                <IconButton color="error" onClick={() => handleDelete(post.id)}>
-                  <DeleteIcon />
-                </IconButton>
+                <Stack direction="row" spacing={1} justifyContent="center" sx={{ p: 1 }}>
+                  <IconButton color="info" onClick={() => handleUpdate(post.id)}>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton color="error" onClick={() => handleDelete(post.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Stack>
               </Stack>
             </Card>
           </Grid>
