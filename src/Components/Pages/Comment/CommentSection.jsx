@@ -39,69 +39,73 @@ const CommentSection = () => {
     }
   };
 
-  return (
-    <Box sx={{ mt: 4 }}>
-      <Typography variant="h6" gutterBottom>
-        Comments
-      </Typography>
+ return (
+  <Box sx={{ mt: 4 }}>
+    <Typography variant="h6" gutterBottom>
+      Comments for Post ID:
+    </Typography>
+    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
+      {postId}
+    </Typography>
 
-      <AddComment
-        postId={postId}
-        userId={userId}
-        token={token}
-        onCommentAdded={fetchComments}
-      />
+    <AddComment
+      postId={postId}
+      userId={userId}
+      token={token}
+      onCommentAdded={fetchComments}
+    />
 
-      <List sx={{ mt: 4 }}>
-        {comments.map((comment) => (
-          <Paper key={comment.id || comment._id} sx={{ mt: 2, p: 2 }}>
-            <ListItem
-              secondaryAction={
-                <Stack direction="row" spacing={1}>
-                  {editingId === (comment.id || comment._id) ? null : (
-                    <IconButton onClick={() => setEditingId(comment.id || comment._id)}>
-                      <Typography fontSize={14}>Edit</Typography>
-                    </IconButton>
-                  )}
-                  <IconButton onClick={() => handleDelete(comment.id || comment._id)}>
-                    <DeleteIcon />
+    <List sx={{ mt: 4 }}>
+      {comments.map((comment) => (
+        <Paper key={comment.id || comment._id} sx={{ mt: 2, p: 2 }}>
+          <ListItem
+            secondaryAction={
+              <Stack direction="row" spacing={1}>
+                {editingId === (comment.id || comment._id) ? null : (
+                  <IconButton onClick={() => setEditingId(comment.id || comment._id)}>
+                    <Typography fontSize={14}>Edit</Typography>
                   </IconButton>
-                </Stack>
+                )}
+                <IconButton onClick={() => handleDelete(comment.id || comment._id)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Stack>
+            }
+          >
+            <ListItemText
+              primary={
+                editingId === (comment.id || comment._id) ? (
+                  <UpdateComment
+                    comment={comment}
+                    token={token}
+                    onUpdateDone={() => {
+                      setEditingId(null);
+                      fetchComments();
+                    }}
+                  />
+                ) : (
+                  <Box>
+                    <Typography variant="subtitle1">{comment.commentText}</Typography>
+                    <Stack direction="row" spacing={1} mt={1}>
+                      {comment.tags && comment.tags.map((tag, idx) => (
+                        <Chip key={idx} label={tag} size="small" />
+                      ))}
+                      {comment.mood && (
+                        <Chip label={`Mood: ${comment.mood}`} size="small" />
+                      )}
+                    </Stack>
+                  </Box>
+                )
               }
-            >
-              <ListItemText
-                primary={
-                  editingId === (comment.id || comment._id) ? (
-                    <UpdateComment
-                      comment={comment}
-                      token={token}
-                      onUpdateDone={() => {
-                        setEditingId(null);
-                        fetchComments();
-                      }}
-                    />
-                  ) : (
-                    <Box>
-                      <Typography variant="subtitle1">{comment.commentText}</Typography>
-                      <Stack direction="row" spacing={1} mt={1}>
-                        {comment.tags && comment.tags.map((tag, idx) => (
-                          <Chip key={idx} label={tag} size="small" />
-                        ))}
-                        {comment.mood && (
-                          <Chip label={`Mood: ${comment.mood}`} size="small" />
-                        )}
-                      </Stack>
-                    </Box>
-                  )
-                }
-                secondary={`Posted on ${new Date(comment.timestamp).toLocaleString()}`}
-              />
-            </ListItem>
-          </Paper>
-        ))}
-      </List>
-    </Box>
-  );
+              secondary={`Posted on ${new Date(comment.timestamp).toLocaleString()}`}
+            />
+          </ListItem>
+        </Paper>
+      ))}
+    </List>
+  </Box>
+);
+
 };
 
 export default CommentSection;
