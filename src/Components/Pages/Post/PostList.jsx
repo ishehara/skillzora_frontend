@@ -1,8 +1,9 @@
-// src/pages/PostDisplay.jsx
 import React, { useEffect, useState } from 'react';
 import {
-  Box, Card, CardMedia, CardContent, Typography, Button, Grid, Container, Stack
+  Box, Card, CardMedia, CardContent, Typography, Button, Grid, Container, Stack, IconButton
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -38,11 +39,40 @@ const PostDisplay = () => {
     navigate("/CommentSection");
   };
 
+  const handleUpdate = (postId) => {
+    navigate(`/update-post/${postId}`);
+  };
+
+  const handleDelete = async (postId) => {
+    try {
+      await axios.delete(`http://localhost:8081/api/posts/${postId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setPosts(posts.filter((post) => post.id !== postId));
+      alert("✅ Post deleted successfully!");
+    } catch (error) {
+      console.error("❌ Error deleting post", error);
+      alert("❌ Failed to delete post");
+    }
+  };
+
   return (
     <Container sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom textAlign="center">
-        Available Cooking Posts
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h4" gutterBottom>
+          Available Cooking Posts
+        </Typography>
+        <Button
+          variant="contained"
+          size="medium"
+          sx={{ backgroundColor: "#FFB300", '&:hover': { backgroundColor: "#FF8F00" } }}
+          onClick={() => navigate('/add-post')}
+        >
+          Add Post
+        </Button>
+      </Box>
       <Grid container spacing={4}>
         {posts.map((post) => (
           <Grid item xs={12} sm={6} md={4} key={post.id}>
@@ -50,7 +80,7 @@ const PostDisplay = () => {
               <CardMedia
                 component="img"
                 height="200"
-                image={`http://localhost:8081${post.imageUrl}`}
+                image={`${process.env.PUBLIC_URL}${post.imageUrl}`}
                 alt={post.title}
               />
               <CardContent>
@@ -79,6 +109,12 @@ const PostDisplay = () => {
                 >
                   View Comments
                 </Button>
+                <IconButton color="info" onClick={() => handleUpdate(post.id)}>
+                  <EditIcon />
+                </IconButton>
+                <IconButton color="error" onClick={() => handleDelete(post.id)}>
+                  <DeleteIcon />
+                </IconButton>
               </Stack>
             </Card>
           </Grid>
