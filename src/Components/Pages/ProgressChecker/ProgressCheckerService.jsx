@@ -20,3 +20,11 @@ export const updateProgress = (id, data) =>
 
 export const deleteProgress = (id) =>
   axios.delete(`${API_BASE}/${id}`, authHeaders());
+
+
+export const getProgressByPost = (postId) =>
+  axios.get(`http://localhost:8081/api/cooking-progress/post/${postId}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    }
+  });

@@ -1,9 +1,9 @@
+// src/pages/ProgressChecker.jsx
 import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
   Container,
-  TextField,
   Typography,
   Paper,
   List,
@@ -14,19 +14,19 @@ import {
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import {
-  getProgressByUser,
+  getProgressByPost,
   deleteProgress
 } from "./ProgressCheckerService";
 import { useNavigate } from "react-router-dom";
 
 const ProgressChecker = () => {
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userId");
+  const postId = localStorage.getItem("selectedPostId"); // ✅ Post ID for filter
   const [progressList, setProgressList] = useState([]);
 
   const fetchProgress = async () => {
     try {
-      const res = await getProgressByUser(userId);
+      const res = await getProgressByPost(postId);
       setProgressList(res.data);
     } catch (error) {
       console.error("❌ Error fetching progress", error);
@@ -34,8 +34,8 @@ const ProgressChecker = () => {
   };
 
   useEffect(() => {
-    if (userId) fetchProgress();
-  }, [userId]);
+    if (postId) fetchProgress();
+  }, [postId]);
 
   const handleEdit = (item) => {
     navigate("/UpdateProgress", { state: { editData: item } });
@@ -49,7 +49,7 @@ const ProgressChecker = () => {
   return (
     <Container sx={{ py: 4 }}>
       <Typography variant="h5" gutterBottom>
-        My Cooking Progress Plans
+        Progress Plans for This Post
       </Typography>
 
       <Button
@@ -84,11 +84,20 @@ const ProgressChecker = () => {
             </ListItem>
             <Box sx={{ pl: 2, pt: 1 }}>
               {item.steps.map((step, idx) => (
-                <Box key={idx} sx={{ mb: 1 }}>
-                  <Typography variant="subtitle2">{`Step ${idx + 1}: ${step.stepTitle}`}</Typography>
-                  <Typography variant="body2" color="text.secondary">
+                <Box key={idx} sx={{ mb: 2 }}>
+                  <Typography variant="subtitle2">
+                    Step {idx + 1}: {step.stepTitle}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
                     {step.description}
                   </Typography>
+                  {step.resourceUrl && (
+                    <Typography variant="body2" color="primary">
+                      🔗 <a href={step.resourceUrl} target="_blank" rel="noopener noreferrer">
+                        {step.resourceUrl}
+                      </a>
+                    </Typography>
+                  )}
                 </Box>
               ))}
             </Box>

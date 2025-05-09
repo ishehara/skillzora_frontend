@@ -48,7 +48,7 @@ const UpdateProgress = () => {
         recipeTitle,
         steps
       });
-      navigate("/progress");
+      navigate("/ProgressChecker");
     } catch (err) {
       console.error("❌ Failed to update progress", err);
     }

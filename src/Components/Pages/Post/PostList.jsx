@@ -30,7 +30,7 @@ const PostDisplay = () => {
 
   const handleView = (postId) => {
     localStorage.setItem("selectedPostId", postId); // ✅ Store in localStorage
-    navigate("/progress"); // ⬅️ Navigate to the page that uses the post ID
+    navigate("/ProgressChecker"); // ⬅️ Navigate to the page that uses the post ID
   };
 
   return (
