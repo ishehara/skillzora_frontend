@@ -1,5 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Box } from "@mui/material";
+
 import Home from "./Components/Pages/Home";
 import Navbar from "./Components/Pages/Navbar";
 import Footer from "./Components/Pages/Footer";
@@ -10,28 +12,38 @@ import UpdateProgress from "./Components/Pages/ProgressChecker/UpdateProgress";
 import PostList from "./Components/Pages/Post/PostList";
 import CommentSection from "./Components/Pages/Comment/CommentSection";
 import Profile from "./Components/Pages/Profile";
-import './App.css';
+
+import "./App.css";
 
 function App() {
   return (
     <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        {/* Add more routes below as needed */}
-        {/* <Route path="/login" element={<Login />} /> */}
-        {/* <Route path="/explore" element={<Explore />} /> */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/ProgressChecker" element={<ProgressChecker />} />
-        <Route path="/AddProgress" element={<AddProgress />} />
-        <Route path="/UpdateProgress" element={<UpdateProgress />} />
-        <Route path="/PostList" element={<PostList />} />
-        <Route path="/CommentSection" element={<CommentSection />} />
+      {/* Wrapper for full height layout */}
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column"
+        }}
+      >
+        <Navbar />
 
-        <Route path="/Profile" element={<Profile />} />
-      </Routes>
+        {/* Main content flexes to fill space */}
+        <Box sx={{ flex: 1 }}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/ProgressChecker" element={<ProgressChecker />} />
+            <Route path="/AddProgress" element={<AddProgress />} />
+            <Route path="/UpdateProgress" element={<UpdateProgress />} />
+            <Route path="/PostList" element={<PostList />} />
+            <Route path="/CommentSection" element={<CommentSection />} />
+            <Route path="/Profile" element={<Profile />} />
+          </Routes>
+        </Box>
 
-      <Footer />
+        <Footer />
+      </Box>
     </Router>
   );
 }
