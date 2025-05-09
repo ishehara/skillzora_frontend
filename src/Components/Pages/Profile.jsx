@@ -45,9 +45,19 @@ const Profile = () => {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Paper elevation={3} sx={{ p: 4, textAlign: 'center' }}>
-        <Typography variant="h4" gutterBottom>
+    <Container maxWidth="sm" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+      <Paper
+        elevation={4}
+        sx={{
+          p: 4,
+          textAlign: 'center',
+          borderRadius: 4,
+          width: '100%',
+          maxWidth: 400,
+          boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <Typography variant="h5" gutterBottom>
           {user.firstName} {user.lastName}
         </Typography>
         <Typography variant="subtitle1" gutterBottom>
@@ -65,9 +75,23 @@ const Profile = () => {
         <Typography variant="caption" display="block" gutterBottom>
           Joined on: {new Date(user.dateJoined).toLocaleDateString()}
         </Typography>
+
         <Box mt={3}>
-          <Button variant="contained" color="error" onClick={handleLogout}>
-            Logout
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: '#FF3B30',
+              '&:hover': {
+                backgroundColor: '#E53935',
+              },
+              px: 5,
+              py: 1,
+              borderRadius: 2,
+              boxShadow: '0px 5px 0px #b71c1c',
+            }}
+            onClick={handleLogout}
+          >
+            LOGOUT
           </Button>
         </Box>
       </Paper>
