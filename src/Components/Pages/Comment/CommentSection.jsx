@@ -1,74 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Paper,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  Stack,
-  Chip
+  Box, Typography, List, Paper, ListItem, ListItemText,
+  IconButton, Stack, Chip
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Picker from "emoji-picker-react";
-import {
-  addComment,
-  getCommentsByPost,
-  deleteComment
-} from "./CommentService";
+import { getCommentsByPost, deleteComment } from "./CommentService";
+import AddComment from "./AddComment";
+import UpdateComment from "./UpdateComment";
 
 const CommentSection = () => {
   const postId = localStorage.getItem("selectedPostId");
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
 
-  const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
-  const [tags, setTags] = useState([]);
-  const [tagInput, setTagInput] = useState("");
-  const [mood, setMood] = useState("");
-  const [showEmoji, setShowEmoji] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
-  const fetchComments = async () => {
+  // ✅ useCallback-wrapped function to avoid ESLint warning
+  const fetchComments = useCallback(async () => {
     try {
       const res = await getCommentsByPost(postId);
       setComments(res.data);
     } catch (error) {
       console.error("❌ Failed to fetch comments", error);
     }
-  };
+  }, [postId]);
 
   useEffect(() => {
     if (postId) fetchComments();
-  }, [postId]);
-
-  const handleAddTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      setTags([...tags, tagInput.trim()]);
-      setTagInput("");
-    }
-  };
-
-  const handleEmojiClick = (emojiData) => {
-    setMood(emojiData.emoji);
-    setShowEmoji(false);
-  };
-
-  const handleSubmit = async () => {
-    try {
-      const commentData = { postId, userId, commentText, tags, mood };
-      await addComment(commentData, token);
-      setCommentText("");
-      setTags([]);
-      setMood("");
-      fetchComments();
-    } catch (error) {
-      console.error("❌ Failed to post comment", error);
-    }
-  };
+  }, [postId, fetchComments]); // ✅ No more warning
 
   const handleDelete = async (id) => {
     try {
@@ -85,84 +45,54 @@ const CommentSection = () => {
         Comments
       </Typography>
 
-      {/* Comment Input */}
-      <TextField
-        label="Write a comment"
-        fullWidth
-        multiline
-        value={commentText}
-        onChange={(e) => setCommentText(e.target.value)}
-        sx={{ mb: 2 }}
+      <AddComment
+        postId={postId}
+        userId={userId}
+        token={token}
+        onCommentAdded={fetchComments}
       />
 
-      {/* Tags */}
-      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-        <TextField
-          label="Add Tag"
-          value={tagInput}
-          onChange={(e) => setTagInput(e.target.value)}
-          size="small"
-        />
-        <Button onClick={handleAddTag}>Add</Button>
-        {tags.map((tag, i) => (
-          <Chip
-            key={i}
-            label={tag}
-            onDelete={() => setTags(tags.filter(t => t !== tag))}
-            sx={{ backgroundColor: "#FFE082" }}
-          />
-        ))}
-      </Stack>
-
-      {/* Emoji Mood Picker */}
-      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
-        <Button onClick={() => setShowEmoji(!showEmoji)}>
-          {mood ? `Mood: ${mood}` : "Pick Mood"}
-        </Button>
-        {mood && <Typography>{mood}</Typography>}
-      </Stack>
-      {showEmoji && (
-        <Box sx={{ mb: 2 }}>
-          <Picker onEmojiClick={handleEmojiClick} />
-        </Box>
-      )}
-
-      {/* Submit Button */}
-      <Button
-        variant="contained"
-        sx={{ backgroundColor: "#FFB300", '&:hover': { backgroundColor: "#FFA000" } }}
-        onClick={handleSubmit}
-        disabled={!commentText}
-      >
-        Post Comment
-      </Button>
-
-      {/* Display Comments */}
       <List sx={{ mt: 4 }}>
         {comments.map((comment) => (
           <Paper key={comment.id || comment._id} sx={{ mt: 2, p: 2 }}>
             <ListItem
               secondaryAction={
-                <IconButton onClick={() => handleDelete(comment.id || comment._id)}>
-                  <DeleteIcon />
-                </IconButton>
+                <Stack direction="row" spacing={1}>
+                  {editingId === (comment.id || comment._id) ? null : (
+                    <IconButton onClick={() => setEditingId(comment.id || comment._id)}>
+                      <Typography fontSize={14}>Edit</Typography>
+                    </IconButton>
+                  )}
+                  <IconButton onClick={() => handleDelete(comment.id || comment._id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Stack>
               }
             >
               <ListItemText
                 primary={
-                  <Box>
-                    <Typography variant="subtitle1">
-                      {comment.commentText}
-                    </Typography>
-                    <Stack direction="row" spacing={1} mt={1}>
-                      {comment.tags && comment.tags.map((tag, idx) => (
-                        <Chip key={idx} label={tag} size="small" />
-                      ))}
-                      {comment.mood && (
-                        <Chip label={`Mood: ${comment.mood}`} size="small" />
-                      )}
-                    </Stack>
-                  </Box>
+                  editingId === (comment.id || comment._id) ? (
+                    <UpdateComment
+                      comment={comment}
+                      token={token}
+                      onUpdateDone={() => {
+                        setEditingId(null);
+                        fetchComments();
+                      }}
+                    />
+                  ) : (
+                    <Box>
+                      <Typography variant="subtitle1">{comment.commentText}</Typography>
+                      <Stack direction="row" spacing={1} mt={1}>
+                        {comment.tags && comment.tags.map((tag, idx) => (
+                          <Chip key={idx} label={tag} size="small" />
+                        ))}
+                        {comment.mood && (
+                          <Chip label={`Mood: ${comment.mood}`} size="small" />
+                        )}
+                      </Stack>
+                    </Box>
+                  )
                 }
                 secondary={`Posted on ${new Date(comment.timestamp).toLocaleString()}`}
               />
