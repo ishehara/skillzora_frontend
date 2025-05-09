@@ -1,7 +1,7 @@
 // src/pages/PostDisplay.jsx
 import React, { useEffect, useState } from 'react';
 import {
-  Box, Card, CardMedia, CardContent, Typography, Button, Grid, Container
+  Box, Card, CardMedia, CardContent, Typography, Button, Grid, Container, Stack
 } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -28,9 +28,14 @@ const PostDisplay = () => {
     fetchPosts();
   }, [token]);
 
-  const handleView = (postId) => {
-    localStorage.setItem("selectedPostId", postId); // ✅ Store in localStorage
-    navigate("/ProgressChecker"); // ⬅️ Navigate to the page that uses the post ID
+  const handleViewProgress = (postId) => {
+    localStorage.setItem("selectedPostId", postId);
+    navigate("/ProgressChecker");
+  };
+
+  const handleAddComment = (postId) => {
+    localStorage.setItem("selectedPostId", postId);
+    navigate("/CommentSection");
   };
 
   return (
@@ -58,16 +63,22 @@ const PostDisplay = () => {
                     : post.description}
                 </Typography>
               </CardContent>
-              <Box sx={{ p: 2, pt: 0 }}>
+
+              <Stack direction="column" spacing={1} sx={{ p: 2 }}>
                 <Button
                   variant="contained"
-                  fullWidth
                   sx={{ backgroundColor: "#FFB300", '&:hover': { backgroundColor: "#FF8F00" } }}
-                  onClick={() => handleView(post.id)}
+                  onClick={() => handleViewProgress(post.id)}
                 >
                   View Progress
                 </Button>
-              </Box>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleAddComment(post.id)}
+                >
+                  ➕ Add Comment
+                </Button>
+              </Stack>
             </Card>
           </Grid>
         ))}
