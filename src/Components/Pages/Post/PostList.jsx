@@ -73,10 +73,11 @@ const PostDisplay = () => {
                   View Progress
                 </Button>
                 <Button
-                  variant="outlined"
+                  variant="contained"
+                  sx={{ backgroundColor: "#009688", '&:hover': { backgroundColor: "#607D8B" } }}
                   onClick={() => handleAddComment(post.id)}
                 >
-                  ➕ Add Comment
+                  View Comments
                 </Button>
               </Stack>
             </Card>
