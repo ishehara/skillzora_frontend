@@ -11,6 +11,7 @@ import AddProgress from "./Components/Pages/ProgressChecker/AddProgress";
 import UpdateProgress from "./Components/Pages/ProgressChecker/UpdateProgress";
 import PostList from "./Components/Pages/Post/PostList";
 import CommentSection from "./Components/Pages/Comment/CommentSection";
+import AddComment from "./Components/Pages/Comment/AddComment";
 import Profile from "./Components/Pages/Profile";
 import UpdatePost from "./Components/Pages/Post/UpdatePost";
 import AddPost from "./Components/Pages/Post/AddPost";
@@ -40,6 +41,7 @@ function App() {
             <Route path="/UpdateProgress" element={<UpdateProgress />} />
             <Route path="/PostList" element={<PostList />} />
             <Route path="/CommentSection" element={<CommentSection />} />
+            <Route path="/posts/:postId/add-comment" element={<AddComment />} />
             <Route path="/Profile" element={<Profile />} />
             <Route path="/update-post/:postId" element={<UpdatePost />} />
              <Route path="/add-post" element={<AddPost />} />
