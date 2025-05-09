@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box, Typography, Button, Grid, Container, 
-  Card, CardContent, CardActions, 
+  Card, CardMedia, CardContent, 
   IconButton, Stack
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -96,8 +96,6 @@ const PostList = () => {
         <Grid container spacing={3}>
           {posts.map((post) => {
             const postId = post.id || post._id;
-            // Default placeholder image
-            const placeholder = 'https://via.placeholder.com/300x200?text=No+Image';
             
             return (
               <Grid item xs={12} sm={6} md={4} lg={3} key={postId}>
@@ -112,22 +110,18 @@ const PostList = () => {
                     borderRadius: 1,
                   }}
                 >
-                  <Box 
-                    sx={{ 
-                      position: 'relative',
-                      height: 250,
-                      width: '100%',
-                      bgcolor: '#f5f5f5',
-                      backgroundImage: post.imageUrl ? 
-                        `url(${post.imageUrl.startsWith('http') ? 
-                          post.imageUrl : 
-                          `http://localhost:8081${post.imageUrl}`})` : 
-                        `url(${placeholder})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat'
-                    }}
-                  >
+                  <Box sx={{ position: 'relative' }}>
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={`${process.env.PUBLIC_URL}${post.imageUrl}`}
+                      alt={post.title}
+                      sx={{ objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://via.placeholder.com/300x200?text=Image+Error";
+                      }}
+                    />
                     <Box
                       sx={{
                         position: 'absolute',
