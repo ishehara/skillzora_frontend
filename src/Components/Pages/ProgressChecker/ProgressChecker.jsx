@@ -10,32 +10,36 @@ import {
   ListItem,
   ListItemText,
   Divider,
-  IconButton
+  IconButton,
+  Checkbox
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import {
   getProgressByPost,
-  deleteProgress
+  deleteProgress,
+  updateProgress
 } from "./ProgressCheckerService";
 import { useNavigate } from "react-router-dom";
 
 const ProgressChecker = () => {
   const navigate = useNavigate();
-  const postId = localStorage.getItem("selectedPostId"); // ✅ Post ID for filter
+  const postId = localStorage.getItem("selectedPostId");
+  const loggedUserId = localStorage.getItem("userId");
   const [progressList, setProgressList] = useState([]);
 
   const fetchProgress = async () => {
     try {
       const res = await getProgressByPost(postId);
-      setProgressList(res.data);
+      const filtered = res.data.filter(p => p.userId === loggedUserId);
+      setProgressList(filtered);
     } catch (error) {
       console.error("❌ Error fetching progress", error);
     }
   };
 
   useEffect(() => {
-    if (postId) fetchProgress();
-  }, [postId]);
+    if (postId && loggedUserId) fetchProgress();
+  }, [postId, loggedUserId]);
 
   const handleEdit = (item) => {
     navigate("/UpdateProgress", { state: { editData: item } });
@@ -46,10 +50,30 @@ const ProgressChecker = () => {
     fetchProgress();
   };
 
+  const handleStepToggle = async (progressId, stepIndex) => {
+    const target = progressList.find(p => p._id === progressId || p.id === progressId);
+    if (!target) return;
+
+    const updatedSteps = [...target.steps];
+    updatedSteps[stepIndex].completed = !updatedSteps[stepIndex].completed;
+
+    const updatedData = {
+      ...target,
+      steps: updatedSteps
+    };
+
+    try {
+      await updateProgress(progressId, updatedData);
+      fetchProgress();
+    } catch (error) {
+      console.error("❌ Failed to update step completion", error);
+    }
+  };
+
   return (
     <Container sx={{ py: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Progress Plans for This Post
+        Your Progress for This Post
       </Typography>
 
       <Button
@@ -84,20 +108,26 @@ const ProgressChecker = () => {
             </ListItem>
             <Box sx={{ pl: 2, pt: 1 }}>
               {item.steps.map((step, idx) => (
-                <Box key={idx} sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2">
-                    Step {idx + 1}: {step.stepTitle}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                    {step.description}
-                  </Typography>
-                  {step.resourceUrl && (
-                    <Typography variant="body2" color="primary">
-                      🔗 <a href={step.resourceUrl} target="_blank" rel="noopener noreferrer">
-                        {step.resourceUrl}
-                      </a>
+                <Box key={idx} sx={{ mb: 2, display: "flex", alignItems: "center" }}>
+                  <Checkbox
+                    checked={step.completed}
+                    onChange={() => handleStepToggle(item._id || item.id, idx)}
+                  />
+                  <Box>
+                    <Typography variant="subtitle2">
+                      Step {idx + 1}: {step.stepTitle}
                     </Typography>
-                  )}
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                      {step.description}
+                    </Typography>
+                    {step.resourceUrl && (
+                      <Typography variant="body2" color="primary">
+                        🔗 <a href={step.resourceUrl} target="_blank" rel="noopener noreferrer">
+                          {step.resourceUrl}
+                        </a>
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
               ))}
             </Box>

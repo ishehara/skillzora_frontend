@@ -21,6 +21,7 @@ const Navbar = () => {
         <Button color="inherit" onClick={() => navigate("/PostList")}>Post</Button>
         <Button color="inherit" onClick={() => navigate("/CommentSection")}>Comments</Button>
         <Button color="inherit" onClick={() => navigate("/login")}>Login/Register</Button>
+        <Button color="inherit" onClick={() => navigate("/Profile")}>Profile</Button>
       </Toolbar>
     </AppBar>
   );
