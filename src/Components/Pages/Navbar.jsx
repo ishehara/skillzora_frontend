@@ -17,8 +17,9 @@ const Navbar = () => {
           SkillZora
         </Typography>
         <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
-        <Button color="inherit" onClick={() => navigate("/explore")}>Explore Recipes</Button>
-        <Button color="inherit" onClick={() => navigate("/bookmarks")}>Bookmarks</Button>
+        <Button color="inherit" onClick={() => navigate("/ProgressChecker")}>Explore Recipes</Button>
+        <Button color="inherit" onClick={() => navigate("/PostList")}>Post</Button>
+        <Button color="inherit" onClick={() => navigate("/CommentSection")}>Commnet</Button>
         <Button color="inherit" onClick={() => navigate("/login")}>Login/Register</Button>
       </Toolbar>
     </AppBar>
