@@ -1,4 +1,4 @@
-// ✅ AddProgress.jsx - Page to Add/Update Progress
+// src/pages/AddProgress.jsx
 import React, { useState } from "react";
 import {
   Box, Button, Container, TextField, Typography
@@ -8,6 +8,7 @@ import { addProgress } from "./ProgressCheckerService";
 
 const AddProgress = () => {
   const userId = localStorage.getItem("userId");
+  const postId = localStorage.getItem("selectedPostId"); // ✅ Get the selected post ID
   const navigate = useNavigate();
 
   const [recipeTitle, setRecipeTitle] = useState("");
@@ -26,10 +27,10 @@ const AddProgress = () => {
   };
 
   const handleSubmit = async () => {
-    const data = { userId, recipeTitle, steps };
+    const data = { postId, userId, recipeTitle, steps }; // ✅ Include postId in the data
     try {
       await addProgress(data);
-      navigate("/progress");
+      navigate("/ProgressChecker"); // ⬅️ After save, go back to progress list
     } catch (err) {
       console.error("❌ Failed to save progress", err);
     }
@@ -38,7 +39,7 @@ const AddProgress = () => {
   return (
     <Container sx={{ py: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Add New Cooking Progress
+        Add New Cooking Progress for This Post
       </Typography>
 
       <TextField
@@ -75,10 +76,12 @@ const AddProgress = () => {
       ))}
 
       <Button variant="outlined" onClick={handleAddStep} sx={{ mb: 2 }}>
-        Add Another Step
+        ➕ Add Another Step
       </Button>
       <br />
-      <Button variant="contained" onClick={handleSubmit}>Create Plan</Button>
+      <Button variant="contained" onClick={handleSubmit}>
+        ✅ Create Plan
+      </Button>
     </Container>
   );
 };
