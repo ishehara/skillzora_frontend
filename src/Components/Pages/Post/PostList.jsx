@@ -3,14 +3,15 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box, Typography, Button, Grid, Container, 
-  Card, CardMedia, CardContent, 
-  IconButton, Stack
+  Card, CardMedia, CardContent, CardActions,
+  IconButton, Divider
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import BookmarkButton from '../Bookmark/BookmarkButton';
+import LikeButton from './LikeButton'; // Import the new component
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -27,7 +28,6 @@ const PostList = () => {
             Authorization: `Bearer ${token}`
           } : {}
         });
-        console.log("Fetched posts:", res.data); // Debugging log
         setPosts(res.data);
       } catch (error) {
         console.error("Error fetching posts", error);
@@ -47,6 +47,11 @@ const PostList = () => {
   const handleViewComments = (postId) => {
     localStorage.setItem("selectedPostId", postId);
     navigate("/CommentSection");
+  };
+
+  const handleViewPost = (postId) => {
+    localStorage.setItem("selectedPostId", postId);
+    navigate(`/posts/${postId}`);
   };
 
   const handleUpdate = (postId) => {
@@ -108,6 +113,11 @@ const PostList = () => {
                     position: 'relative',
                     border: '1px solid #eee',
                     borderRadius: 1,
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: 3
+                    }
                   }}
                 >
                   <Box sx={{ position: 'relative' }}>
@@ -116,7 +126,8 @@ const PostList = () => {
                       height="200"
                       image={`${process.env.PUBLIC_URL}${post.imageUrl}`}
                       alt={post.title}
-                      sx={{ objectFit: 'cover' }}
+                      sx={{ objectFit: 'cover', cursor: 'pointer' }}
+                      onClick={() => handleViewPost(postId)}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "https://via.placeholder.com/300x200?text=Image+Error";
@@ -133,8 +144,17 @@ const PostList = () => {
                     </Box>
                   </Box>
                   
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography variant="h6" component="h2" gutterBottom>
+                  <CardContent sx={{ flexGrow: 1, pb: 1 }}>
+                    <Typography 
+                      variant="h6" 
+                      component="h2" 
+                      gutterBottom
+                      sx={{ 
+                        cursor: 'pointer',
+                        '&:hover': { color: '#009688' }
+                      }}
+                      onClick={() => handleViewPost(postId)}
+                    >
                       {post.title}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -160,6 +180,13 @@ const PostList = () => {
                       </Box>
                     )}
                   </CardContent>
+                  
+                  {/* Social engagement section */}
+                  <CardActions sx={{ px: 2, py: 1 }}>
+                    <LikeButton postId={postId} />
+                  </CardActions>
+                  
+                  <Divider />
                   
                   <Box sx={{ p: 2 }}>
                     <Button

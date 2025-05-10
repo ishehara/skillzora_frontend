@@ -2,11 +2,15 @@
 
 import React, { useEffect, useState } from 'react';
 import {
-  Container, Typography, Box, Paper, Button, Chip, Divider
+  Container, Typography, Box, Paper, Button, Chip, Divider,
+  Card, CardActions, Grid
 } from '@mui/material';
+import CommentIcon from '@mui/icons-material/Comment';
+import TimerIcon from '@mui/icons-material/Timer';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import BookmarkButton from '../Bookmark/BookmarkButton';
+import LikeButton from './LikeButton'; // Import the new component
 
 const PostDetail = () => {
   const [post, setPost] = useState(null);
@@ -82,7 +86,7 @@ const PostDetail = () => {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper elevation={2} sx={{ overflow: 'hidden' }}>
+      <Paper elevation={2} sx={{ overflow: 'hidden', borderRadius: 2 }}>
         <Box sx={{ position: 'relative' }}>
           <Box
             component="img"
@@ -93,6 +97,10 @@ const PostDetail = () => {
             }}
             src={`http://localhost:8081${post.imageUrl}`}
             alt={post.title}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "https://via.placeholder.com/800x400?text=Image+Not+Available";
+            }}
           />
           <Box 
             sx={{ 
@@ -129,6 +137,39 @@ const PostDetail = () => {
           <Typography variant="body1" paragraph>
             {post.description}
           </Typography>
+          
+          {/* Social interactions section */}
+          <Card variant="outlined" sx={{ mb: 3, mt: 3, borderRadius: 2 }}>
+            <CardActions sx={{ p: 2, justifyContent: 'space-between' }}>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item>
+                  {/* New Like Button component */}
+                  <LikeButton postId={selectedPostId} />
+                </Grid>
+                <Grid item>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Button 
+                      startIcon={<CommentIcon />} 
+                      onClick={handleViewComments}
+                      sx={{ fontSize: '0.875rem' }}
+                    >
+                      Comments
+                    </Button>
+                  </Box>
+                </Grid>
+                <Grid item>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <TimerIcon sx={{ fontSize: 18, mr: 0.5, color: 'text.secondary' }} />
+                    <Typography variant="body2" color="text.secondary">
+                      {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'Date not available'}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </CardActions>
+          </Card>
+          
+          <Divider sx={{ my: 2 }} />
           
           <Box sx={{ mt: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
             <Button
